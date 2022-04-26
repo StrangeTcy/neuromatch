@@ -15,6 +15,7 @@ HYPERPARAM_SEARCH_N_TRIALS = None   # how many grid search trials to run
 import argparse
 from email.policy import default
 from itertools import permutations
+from multiprocessing.dummy import freeze_support
 import pickle
 import queue
 from queue import PriorityQueue
@@ -1779,4 +1780,5 @@ def main(force_test=False):
 if __name__ == '__main__':
     print ("Hooray! Calling main")
     # datasets_main()
+    freeze_support()
     main()
