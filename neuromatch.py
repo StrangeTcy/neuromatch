@@ -1553,8 +1553,9 @@ def validation(args, model, test_pts, logger, batch_n, epoch, verbose=False):
         logger.add_scalar("TN/test", tn, batch_n)
         logger.add_scalar("FP/test", fp, batch_n)
         logger.add_scalar("FN/test", fn, batch_n)
-        print("Saving {}".format(args.model_path))
-        torch.save(model.state_dict(), args.model_path)
+    
+    print("Saving {}".format(args.model_path))
+    torch.save(model.state_dict(), args.model_path)
 
     if verbose:
         conf_mat_examples = defaultdict(list)
