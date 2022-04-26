@@ -64,6 +64,10 @@ from deepsnap.batch import Batch
 from deepsnap.dataset import GraphDataset
 
 
+import wandb
+wandb.init(project="neuromatch_experiments")
+
+
 # from common import data
 
 
@@ -1533,6 +1537,11 @@ def validation(args, model, test_pts, logger, batch_n, epoch, verbose=False):
         "TN: {}. FP: {}. FN: {}. TP: {}".format(epoch,
             acc, prec, recall, auroc, avg_prec,
             tn, fp, fn, tp))
+    wandb.log({"Validation Epoch": epoch, 
+                "Validation accuracy": acc,
+                "Validation precision": prec,
+                "Validation recall": recall,
+                "Validation average precision": avg_prec})        
 
     if not args.test:
         logger.add_scalar("Accuracy/test", acc, batch_n)
@@ -1728,10 +1737,11 @@ def train_loop(args):
                 train_loss, train_acc = params
                 print("Batch {}. Loss: {:.4f}. Training acc: {:.4f}".format(
                     batch_n, train_loss, train_acc), end="               \r")
+                wandb.log({"Batch": batch_n, "Train Loss": train_loss, "Train Acc": train_acc})
                 logger.add_scalar("Loss/train", train_loss, batch_n)
                 logger.add_scalar("Accuracy/train", train_acc, batch_n)
                 batch_n += 1
-            validation(args, model, test_pts, logger, batch_n, epoch)
+            validation(args, model, test_pts, logger, batch_n, epoch, verbose=True)
 
     for i in trange(args.n_workers):
         in_queue.put(("done", None))
