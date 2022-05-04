@@ -1581,9 +1581,11 @@ def build_model(args):
     elif args.method_type == "mlp":
         model = BaselineMLP(1, args.hidden_dim, args)
     model.to(get_device())
-    if args.test and args.model_path:
-        model.load_state_dict(torch.load(args.model_path,
-            map_location=get_device()))
+    if args.model_path:
+        if os.path.exists(args.model_path):
+            print (f"Loading model from {args.model_path}...")
+            model.load_state_dict(torch.load(args.model_path,
+                map_location=get_device()))
     return model
 
 def make_data_source(args):
