@@ -1400,6 +1400,8 @@ def parse_encoder(parser, arg_str=None):
                         help='validation set size')
     enc_parser.add_argument('--model_path', type=str,
                         help='path to save/load model')
+    enc_parser.add_argument('--checkpoint_path', type=str,
+                        help='path to save/load model')
     enc_parser.add_argument('--opt_scheduler', type=str,
                         help='scheduler name')
     enc_parser.add_argument('--node_anchored', action="store_true",
@@ -1581,10 +1583,10 @@ def build_model(args):
     elif args.method_type == "mlp":
         model = BaselineMLP(1, args.hidden_dim, args)
     model.to(get_device())
-    if args.model_path:
-        if os.path.exists(args.model_path):
-            print (f"Loading model from {args.model_path}...")
-            model.load_state_dict(torch.load(args.model_path,
+    if args.checkpoint_path:
+        if os.path.exists(args.checkpoint_path):
+            print (f"Loading model from {args.checkpoint_path}...")
+            model.load_state_dict(torch.load(args.checkpoint_path,
                 map_location=get_device()))
     return model
 
