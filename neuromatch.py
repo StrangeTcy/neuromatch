@@ -64,10 +64,7 @@ from deepsnap.graph import Graph as DSGraph
 from deepsnap.batch import Batch
 from deepsnap.dataset import GraphDataset
 
-
 import wandb
-wandb.init(project="neuromatch_experiments")
-
 
 # from common import data
 
@@ -1576,8 +1573,6 @@ def validation(args, model, test_pts, logger, batch_n, epoch, verbose=False):
 
 
 
-
-
 def build_model(args):
     # build model
     print (f"We're using model of type {args.method_type}")
@@ -1684,6 +1679,8 @@ def train_loop(args):
     if not os.path.exists("plots/"):
         os.makedirs("plots/")
 
+    
+
     print("Starting {} workers".format(args.n_workers))
     in_queue, out_queue = mp.Queue(), mp.Queue()
 
@@ -1719,6 +1716,7 @@ def train_loop(args):
         neg_b = neg_b.to(torch.device("cpu"))
         test_pts.append((pos_a, pos_b, neg_a, neg_b))
 
+    
     workers = []
     print ("starting workers")
     for i in range(args.n_workers):
@@ -1774,11 +1772,15 @@ def main(force_test=False):
             print(hparam_trial)
             train_loop(hparam_trial)
     else:
+        print ("Trying to init wandb logging for our multiprocessing training...") 
+        wandb.init(project="neuromatch_experiments",
+                group="MultiProcessing training")
+
         print ("We should proceed to training loop...")
         train_loop(args)
 
 if __name__ == '__main__':
     print ("Hooray! Calling main")
     # datasets_main()
-    freeze_support()
+    # freeze_support()
     main()
