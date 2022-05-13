@@ -1819,9 +1819,12 @@ def align(args, model):
         target = nx.gnp_random_graph(16, 0.25)
 
     print ("Here's our target graph:")
+    plt.figure(1)
     nx.draw(target, with_labels=True)
     print ("And here's our query graph:")
+    plt.figure(2)
     nx.draw(query, with_labels=True)
+    plt.show()
     
     mat = gen_alignment_matrix(model, query, target,
         method_type=args.method_type)
@@ -1836,7 +1839,7 @@ def align(args, model):
 
 def try_alignment(args, n=3):
     for i in trange(n):
-        print (f"Testing our model on a random query and target graph. Attempt #{n}")
+        print (f"Testing our model on a random query and target graph. Attempt #{i}")
         align(args, build_model(args))
 
     input ("Are you satisfied?")    
