@@ -62,7 +62,14 @@ from collections import defaultdict, Counter
 
 from deepsnap.graph import Graph as DSGraph
 from deepsnap.batch import Batch
-from deepsnap.dataset import GraphDataset
+
+
+from itertools import permutations
+
+
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+
 
 import wandb
 
@@ -1411,6 +1418,13 @@ def parse_encoder(parser, arg_str=None):
     enc_parser.add_argument('--tag', type=str,
         help='tag to identify the run')
 
+    enc_parser.add_argument('--query_path', type=str, help='path of query graph',
+        default="")
+    enc_parser.add_argument('--target_path', type=str, help='path of target graph',
+        default="")
+    
+
+
     enc_parser.set_defaults(conv_type='SAGE',
                         method_type='order',
                         dataset='syn',
@@ -1752,6 +1766,80 @@ def train_loop(args):
     for worker in workers:
         worker.join()
 
+
+
+def gen_alignment_matrix(model, query, target, method_type="order"):
+    """Generate subgraph matching alignment matrix for a given query and
+    target graph. Each entry (u, v) of the matrix contains the confidence score
+    the model gives for the query graph, anchored at u, being a subgraph of the
+    target graph, anchored at v.
+
+    Args:
+        model: the subgraph matching model. Must have been trained with
+            node anchored setting (--node_anchored, default)
+        query: the query graph (networkx Graph)
+        target: the target graph (networkx Graph)
+        method_type: the method used for the model.
+            "order" for order embedding or "mlp" for MLP model
+    """
+
+    mat = np.zeros((len(query), len(target)))
+    for i, u in enumerate(query.nodes):
+        for j, v in enumerate(target.nodes):
+            batch = batch_nx_graphs([query, target], anchors=[u, v])
+            embs = model.emb_model(batch)
+            pred = model(embs[1].unsqueeze(0), embs[0].unsqueeze(0))
+            raw_pred = model.predict(pred)
+            if method_type == "order":
+                raw_pred = torch.log(raw_pred)
+            elif method_type == "mlp":
+                raw_pred = raw_pred[0][1]
+            mat[i][j] = raw_pred.item()
+    return mat
+
+
+def align(args, model):
+    if not os.path.exists("plots/"):
+        os.makedirs("plots/")
+    if not os.path.exists("results/"):
+        os.makedirs("results/")
+    
+    if args.query_path:
+        with open(args.query_path, "rb") as f:
+            query = pickle.load(f)
+    else:
+        query = nx.gnp_random_graph(8, 0.25)
+    if args.target_path:
+        with open(args.target_path, "rb") as f:
+            target = pickle.load(f)
+    else:
+        target = nx.gnp_random_graph(16, 0.25)
+
+    print ("Here's our target graph:")
+    nx.draw(target, with_labels=True)
+    print ("And here's our query graph:")
+    nx.draw(query, with_labels=True)
+    
+    mat = gen_alignment_matrix(model, query, target,
+        method_type=args.method_type)
+
+    np.save("results/alignment.npy", mat)
+    print("Saved alignment matrix in results/alignment.npy")
+
+    plt.imshow(mat, interpolation="nearest")
+    plt.savefig("plots/alignment.png")
+    print("Saved alignment matrix plot in plots/alignment.png")
+
+
+def try_alignment(args, n=3):
+    for i in trange(n):
+        print (f"Testing our model on a random query and target graph. Attempt #{n}")
+        align(args, build_model(args))
+
+    input ("Are you satisfied?")    
+
+
+
 def main(force_test=False):
     print ("Spawning multiple Processes...")
     mp.set_start_method("spawn", force=True)
@@ -1766,6 +1854,9 @@ def main(force_test=False):
 
     if force_test:
         args.test = True
+
+    if args.try_alignment:
+        try_alignment(args, n=3)    
 
     # Currently due to parallelism in multi-gpu training, this code performs
     # sequential hyperparameter tuning.
@@ -1788,3 +1879,19 @@ if __name__ == '__main__':
     # datasets_main()
     # freeze_support()
     main()
+
+
+
+#===========================
+# 
+# 
+"""Build an alignment matrix for matching a query subgraph in a target graph.
+Subgraph matching model needs to have been trained with the node-anchored option
+(default)."""
+
+
+
+
+
+
+    
