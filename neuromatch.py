@@ -1858,6 +1858,7 @@ def main(force_test=False):
     if force_test:
         args.test = True
 
+    print ("Checking whether to try alignment...")
     if args.try_alignment:
         try_alignment(args, n=3)    
 
