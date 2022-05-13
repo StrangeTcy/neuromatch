@@ -1418,6 +1418,9 @@ def parse_encoder(parser, arg_str=None):
     enc_parser.add_argument('--tag', type=str,
         help='tag to identify the run')
 
+
+    enc_parser.add_argument('--try_alignment', action="store_true",
+                        help='test our model`s retrieval capabilities')
     enc_parser.add_argument('--query_path', type=str, help='path of query graph',
         default="")
     enc_parser.add_argument('--target_path', type=str, help='path of target graph',
