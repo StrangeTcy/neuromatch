@@ -1821,15 +1821,7 @@ def align(args, model):
     else:
         target = nx.gnp_random_graph(16, 0.25)
 
-    print ("Here's our target graph:")
-    plt.figure(1)
-    nx.draw(target, with_labels=True)
-    print ("And here's our query graph:")
-    plt.figure(2)
-    nx.draw(query, with_labels=True)
-    
-    plt.show()
-    
+       
 
 
     mat = gen_alignment_matrix(model, query, target,
@@ -1841,6 +1833,16 @@ def align(args, model):
     plt.imshow(mat, interpolation="nearest")
     plt.savefig("plots/alignment.png")
     print("Saved alignment matrix plot in plots/alignment.png")
+
+
+    print ("Here's our target graph:")
+    plt.figure(1)
+    nx.draw(target, with_labels=True)
+    print ("And here's our query graph:")
+    plt.figure(2)
+    nx.draw(query, with_labels=True)
+    
+    plt.show()
 
 
 def try_alignment(args, n=3):
