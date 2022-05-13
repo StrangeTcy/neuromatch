@@ -1802,6 +1802,9 @@ def gen_alignment_matrix(model, query, target, method_type="order"):
 
 
 def align(args, model):
+    """Build an alignment matrix for matching a query subgraph in a target graph.
+    Subgraph matching model needs to have been trained with the node-anchored option
+    (default)."""
     if not os.path.exists("plots/"):
         os.makedirs("plots/")
     if not os.path.exists("results/"):
@@ -1824,8 +1827,11 @@ def align(args, model):
     print ("And here's our query graph:")
     plt.figure(2)
     nx.draw(query, with_labels=True)
+    
     plt.show()
     
+
+
     mat = gen_alignment_matrix(model, query, target,
         method_type=args.method_type)
 
@@ -1886,19 +1892,3 @@ if __name__ == '__main__':
     # datasets_main()
     # freeze_support()
     main()
-
-
-
-#===========================
-# 
-# 
-"""Build an alignment matrix for matching a query subgraph in a target graph.
-Subgraph matching model needs to have been trained with the node-anchored option
-(default)."""
-
-
-
-
-
-
-    
