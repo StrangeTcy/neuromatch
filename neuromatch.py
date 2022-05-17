@@ -1841,8 +1841,9 @@ def align(args, model):
     print ("And here's our query graph:")
     plt.figure(2)
     nx.draw(query, with_labels=True)
-    
+    print ("Before plt.show in align")
     plt.show()
+    print ("After plt.show in align")
 
 
 def try_alignment(args, n=3):
